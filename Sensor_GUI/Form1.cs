@@ -56,6 +56,7 @@ namespace SAI_4
                 }
             }
             ListConnections.Items.Clear();
+            ListConnections.Clear();
             foreach (var item in _ports.Keys)
             {
                 ListConnections.Items.Add(item);

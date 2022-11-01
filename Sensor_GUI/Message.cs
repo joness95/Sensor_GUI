@@ -52,6 +52,7 @@ namespace SAI_4
     {
         public MessageHead MessageHead;
         public ParameterNumber ParameterNumber;
+        public byte[] Value;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
