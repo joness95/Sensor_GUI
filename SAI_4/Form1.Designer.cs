@@ -42,6 +42,7 @@
             this.ButtonScan = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.PageExperiments = new System.Windows.Forms.TabPage();
+            this.button_test = new System.Windows.Forms.Button();
             this.PageMeassuring.SuspendLayout();
             this.PageSettings.SuspendLayout();
             this.PanelUSBInfo.SuspendLayout();
@@ -51,6 +52,7 @@
             // PageMeassuring
             // 
             this.PageMeassuring.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.PageMeassuring.Controls.Add(this.button_test);
             this.PageMeassuring.Controls.Add(this.Plot1);
             this.PageMeassuring.Controls.Add(this.ButtonStart);
             this.PageMeassuring.Controls.Add(this.ButtonStop);
@@ -216,6 +218,19 @@
             this.PageExperiments.Text = "Experiments";
             this.PageExperiments.UseVisualStyleBackColor = true;
             // 
+            // button_test
+            // 
+            this.button_test.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_test.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.button_test.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button_test.Location = new System.Drawing.Point(660, 383);
+            this.button_test.Name = "button_test";
+            this.button_test.Size = new System.Drawing.Size(113, 42);
+            this.button_test.TabIndex = 5;
+            this.button_test.Text = "Stop";
+            this.button_test.UseVisualStyleBackColor = true;
+            this.button_test.Click += new System.EventHandler(this.button_test_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -249,5 +264,6 @@
         private ColumnHeader ColumnProperty;
         private ColumnHeader ColumnValue;
         private ListView ListConnections;
+        private Button button_test;
     }
 }

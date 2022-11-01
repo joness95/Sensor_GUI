@@ -13,7 +13,9 @@ namespace SAI_4
             InitializeComponent();
             ListProperties.Columns[0].Width = this.ListProperties.Size.Width / 2 - 1;
             ListProperties.Columns[1].Width = this.ListProperties.Size.Width / 2 - 1;
-
+            _controller.ParamterRecieved += ((object sender, ParameterNumber ParameterNumber, byte[] Value) => {
+                Debug.WriteLine($"Paramternumber {ParameterNumber} - Value {BitConverter.ToString(Value)}");
+            });
         }
 
         private void tabPage2_Click(object sender, EventArgs e)
@@ -104,6 +106,11 @@ namespace SAI_4
                 }
                 catch (Exception exception)
                 {
+                    ListConnections.Enabled = true;
+                    ButtonScan.Enabled = true;
+
+                    _controller.Disconnect();
+                    button.Text = "Connect";
                     Debug.WriteLine(exception);
                 }
             }
@@ -115,6 +122,11 @@ namespace SAI_4
                 _controller.Disconnect();
                 button.Text = "Connect";
             }
+        }
+
+        private void button_test_Click(object sender, EventArgs e)
+        {
+            _controller.ReadParameter(ParameterNumber.CYCLETIME);
         }
     }
 }
