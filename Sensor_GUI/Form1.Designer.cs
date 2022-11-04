@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             this.PageMeassuring = new System.Windows.Forms.TabPage();
+            this.button_test = new System.Windows.Forms.Button();
             this.Plot1 = new ScottPlot.FormsPlot();
             this.ButtonStart = new System.Windows.Forms.Button();
             this.ButtonStop = new System.Windows.Forms.Button();
             this.PageSettings = new System.Windows.Forms.TabPage();
             this.ListConnections = new System.Windows.Forms.ListView();
             this.PanelUSBInfo = new System.Windows.Forms.Panel();
+            this.Debug_Connect = new System.Windows.Forms.Button();
             this.ListProperties = new System.Windows.Forms.ListView();
             this.ColumnProperty = new System.Windows.Forms.ColumnHeader();
             this.ColumnValue = new System.Windows.Forms.ColumnHeader();
@@ -42,11 +44,14 @@
             this.ButtonScan = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.PageExperiments = new System.Windows.Forms.TabPage();
-            this.button_test = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.ToolStripStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ToolStripConnectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.PageMeassuring.SuspendLayout();
             this.PageSettings.SuspendLayout();
             this.PanelUSBInfo.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // PageMeassuring
@@ -59,10 +64,22 @@
             this.PageMeassuring.Location = new System.Drawing.Point(4, 24);
             this.PageMeassuring.Name = "PageMeassuring";
             this.PageMeassuring.Padding = new System.Windows.Forms.Padding(3);
-            this.PageMeassuring.Size = new System.Drawing.Size(776, 433);
+            this.PageMeassuring.Size = new System.Drawing.Size(776, 408);
             this.PageMeassuring.TabIndex = 1;
             this.PageMeassuring.Text = "Meassuring";
-            this.PageMeassuring.Click += new System.EventHandler(this.tabPage2_Click);
+            // 
+            // button_test
+            // 
+            this.button_test.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_test.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.button_test.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button_test.Location = new System.Drawing.Point(660, 363);
+            this.button_test.Name = "button_test";
+            this.button_test.Size = new System.Drawing.Size(113, 42);
+            this.button_test.TabIndex = 5;
+            this.button_test.Text = "DebugTest";
+            this.button_test.UseVisualStyleBackColor = true;
+            this.button_test.Click += new System.EventHandler(this.button_test_Click);
             // 
             // Plot1
             // 
@@ -72,7 +89,7 @@
             this.Plot1.Location = new System.Drawing.Point(3, 3);
             this.Plot1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Plot1.Name = "Plot1";
-            this.Plot1.Size = new System.Drawing.Size(656, 427);
+            this.Plot1.Size = new System.Drawing.Size(656, 402);
             this.Plot1.TabIndex = 4;
             // 
             // ButtonStart
@@ -109,7 +126,7 @@
             this.PageSettings.Location = new System.Drawing.Point(4, 24);
             this.PageSettings.Margin = new System.Windows.Forms.Padding(0);
             this.PageSettings.Name = "PageSettings";
-            this.PageSettings.Size = new System.Drawing.Size(776, 433);
+            this.PageSettings.Size = new System.Drawing.Size(776, 408);
             this.PageSettings.TabIndex = 0;
             this.PageSettings.Text = "Settings";
             // 
@@ -137,12 +154,24 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PanelUSBInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.PanelUSBInfo.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.PanelUSBInfo.Controls.Add(this.Debug_Connect);
             this.PanelUSBInfo.Controls.Add(this.ListProperties);
             this.PanelUSBInfo.Controls.Add(this.ButtonConnect);
             this.PanelUSBInfo.Location = new System.Drawing.Point(183, 0);
             this.PanelUSBInfo.Name = "PanelUSBInfo";
             this.PanelUSBInfo.Size = new System.Drawing.Size(593, 433);
             this.PanelUSBInfo.TabIndex = 2;
+            // 
+            // Debug_Connect
+            // 
+            this.Debug_Connect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Debug_Connect.Location = new System.Drawing.Point(430, 373);
+            this.Debug_Connect.Name = "Debug_Connect";
+            this.Debug_Connect.Size = new System.Drawing.Size(160, 32);
+            this.Debug_Connect.TabIndex = 2;
+            this.Debug_Connect.Text = "Connect";
+            this.Debug_Connect.UseVisualStyleBackColor = true;
+            this.Debug_Connect.Click += new System.EventHandler(this.Debug_Connect_Click);
             // 
             // ListProperties
             // 
@@ -198,44 +227,58 @@
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.PageSettings);
             this.tabControl1.Controls.Add(this.PageMeassuring);
             this.tabControl1.Controls.Add(this.PageExperiments);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.Padding = new System.Drawing.Point(0, 0);
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(784, 461);
+            this.tabControl1.Size = new System.Drawing.Size(784, 436);
             this.tabControl1.TabIndex = 2;
             // 
             // PageExperiments
             // 
             this.PageExperiments.Location = new System.Drawing.Point(4, 24);
             this.PageExperiments.Name = "PageExperiments";
-            this.PageExperiments.Size = new System.Drawing.Size(776, 433);
+            this.PageExperiments.Size = new System.Drawing.Size(776, 408);
             this.PageExperiments.TabIndex = 2;
             this.PageExperiments.Text = "Experiments";
             this.PageExperiments.UseVisualStyleBackColor = true;
             // 
-            // button_test
+            // statusStrip1
             // 
-            this.button_test.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_test.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.button_test.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button_test.Location = new System.Drawing.Point(660, 383);
-            this.button_test.Name = "button_test";
-            this.button_test.Size = new System.Drawing.Size(113, 42);
-            this.button_test.TabIndex = 5;
-            this.button_test.Text = "Stop";
-            this.button_test.UseVisualStyleBackColor = true;
-            this.button_test.Click += new System.EventHandler(this.button_test_Click);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ToolStripStatus,
+            this.ToolStripConnectionStatus});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 439);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(784, 22);
+            this.statusStrip1.TabIndex = 7;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // ToolStripStatus
+            // 
+            this.ToolStripStatus.Name = "ToolStripStatus";
+            this.ToolStripStatus.Size = new System.Drawing.Size(690, 17);
+            this.ToolStripStatus.Spring = true;
+            // 
+            // ToolStripConnectionStatus
+            // 
+            this.ToolStripConnectionStatus.BackColor = System.Drawing.Color.Gray;
+            this.ToolStripConnectionStatus.Name = "ToolStripConnectionStatus";
+            this.ToolStripConnectionStatus.Size = new System.Drawing.Size(79, 17);
+            this.ToolStripConnectionStatus.Text = "Disconnected";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Name = "MainForm";
@@ -244,7 +287,10 @@
             this.PageSettings.ResumeLayout(false);
             this.PanelUSBInfo.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -265,5 +311,9 @@
         private ColumnHeader ColumnValue;
         private ListView ListConnections;
         private Button button_test;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel ToolStripStatus;
+        private ToolStripStatusLabel ToolStripConnectionStatus;
+        private Button Debug_Connect;
     }
 }

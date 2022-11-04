@@ -1,31 +1,25 @@
-﻿using Sensor_GUI;
-using System;
+﻿using Sensor_GUI.Helper;
+using Sensor_GUI.Messages;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 
-namespace SAI_4
+namespace Sensor_GUI.Controllers
 {
-    internal class ArduinoController : BaseSensorController
+    internal class ArduinoController : IBaseSensorController
     {
         public SerialPort port = new SerialPort();
         public Dictionary<int, IEnumerable> data = new Dictionary<int, IEnumerable>();
 
-        public event DataAvailableDelegate<SByte> UINT8_DataAvailable = delegate { };
-        public event DataAvailableDelegate<UInt16> UINT16_DataAvailable = delegate { };
-        public event DataAvailableDelegate<UInt32> UINT32_DataAvailable = delegate { };
-        public event DataAvailableDelegate<UInt64> UINT64_DataAvailable = delegate { };
-        public event DataAvailableDelegate<Byte> INT8_DataAvailable = delegate { };
-        public event DataAvailableDelegate<Int16> INT16_DataAvailable = delegate { };
-        public event DataAvailableDelegate<Int32> INT32_DataAvailable = delegate { };
-        public event DataAvailableDelegate<Int64> INT64_DataAvailable = delegate { };
+        public event DataAvailableDelegate<sbyte> UINT8_DataAvailable = delegate { };
+        public event DataAvailableDelegate<ushort> UINT16_DataAvailable = delegate { };
+        public event DataAvailableDelegate<uint> UINT32_DataAvailable = delegate { };
+        public event DataAvailableDelegate<ulong> UINT64_DataAvailable = delegate { };
+        public event DataAvailableDelegate<byte> INT8_DataAvailable = delegate { };
+        public event DataAvailableDelegate<short> INT16_DataAvailable = delegate { };
+        public event DataAvailableDelegate<int> INT32_DataAvailable = delegate { };
+        public event DataAvailableDelegate<long> INT64_DataAvailable = delegate { };
         public event DataAvailableDelegate<float> FLOAT_DataAvailable = delegate { };
         public event DataAvailableDelegate<double> DOUBLE_DataAvailable = delegate { };
 
@@ -58,7 +52,8 @@ namespace SAI_4
             GetParameterRequest request;
             request.MessageHead.MsgType = MessageType.GET_PARAMETER;
             request.ParameterNumber = number;
-            request.MessageHead.MsgLength = 2;
+            request.MessageHead.MsgLength = 6;
+            port.Write(request.ToByteArray(), 0, request.MessageHead.MsgLength);
         }
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -67,11 +62,11 @@ namespace SAI_4
             var _port = (SerialPort)sender;
             byte[] buff_head = new byte[4];
             _port.Read(buff_head, 0, 4);
-            var head = CastingHelper.CastToStruct<MessageHead>(buff_head);
+            var head = buff_head.CastToStruct<MessageHead>();
             Debug.WriteLine($"Type: {head.MsgType}");
             Debug.WriteLine($"Length: {head.MsgLength}");
-            byte[] buff_data = new byte[head.MsgLength];
-            _port.Read(buff_data, 0, head.MsgLength);
+            byte[] buff_data = new byte[head.MsgLength - 4];
+            _port.Read(buff_data, 0, head.MsgLength - 4);
             byte[] buff_msg = buff_head.Concat(buff_data).ToArray();
 
             IDataMessage msg;
@@ -87,64 +82,64 @@ namespace SAI_4
                 case MessageType.SET_PARAMETER:
                     break;
                 case MessageType.SET_PARAMETER_RESPONSE:
-                    var set_param_response = CastingHelper.CastToStruct<SetParameterResponse>(buff_msg);
+                    var set_param_response = SetParameterResponse.GetFromByteArray(buff_msg);
                     ParamterRecieved(this, set_param_response.ParameterNumber, set_param_response.Value);
                     break;
                 case MessageType.GET_PARAMETER:
                     break;
                 case MessageType.GET_PARAMETER_RESPONSE:
-                    var get_param_response = CastingHelper.CastToStruct<GetParameterResponse>(buff_msg);
+                    var get_param_response = GetParameterResponse.GetFromByteArray(buff_msg);
                     ParamterRecieved(this, get_param_response.ParameterNumber, get_param_response.Value);
                     break;
                 case MessageType.PARAMETER_FLOAT:
-                    msg = CastingHelper.CastToStruct<DataMessage<float>>(buff_msg);
+                    msg = buff_msg.CastToStruct<DataMessage<float>>();
                     var buffmsg_float = (DataMessage<float>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_float.ParameterNumber, buffmsg_float.Value);
+                    FLOAT_DataAvailable(this, buffmsg_float.ParameterNumber, buffmsg_float.Value);
                     break;
                 case MessageType.PARAMETER_DOUBLE:
-                    msg = CastingHelper.CastToStruct<DataMessage<double>>(buff_msg);
+                    msg = buff_msg.CastToStruct<DataMessage<double>>();
                     var buffmsg_double = (DataMessage<double>)msg;
-                    this.DOUBLE_DataAvailable(this, buffmsg_double.ParameterNumber, buffmsg_double.Value);
+                    DOUBLE_DataAvailable(this, buffmsg_double.ParameterNumber, buffmsg_double.Value);
                     break;
                 case MessageType.PARAMETER_INT8:
-                    msg = CastingHelper.CastToStruct<DataMessage<SByte>>(buff_msg);
-                    var buffmsg_SByte = (DataMessage<SByte>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_SByte.ParameterNumber, buffmsg_SByte.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<sbyte>>();
+                    var buffmsg_SByte = (DataMessage<sbyte>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_SByte.ParameterNumber, buffmsg_SByte.Value);
                     break;
                 case MessageType.PARAMETER_UINT8:
-                    msg = CastingHelper.CastToStruct<DataMessage<Byte>>(buff_msg);
-                    var buffmsg_Byte = (DataMessage<Byte>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_Byte.ParameterNumber, buffmsg_Byte.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<byte>>();
+                    var buffmsg_Byte = (DataMessage<byte>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_Byte.ParameterNumber, buffmsg_Byte.Value);
                     break;
                 case MessageType.PARAMETER_INT16:
-                    msg = CastingHelper.CastToStruct<DataMessage<Int16>>(buff_msg);
-                    var buffmsg_Int16 = (DataMessage<Int16>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<short>>();
+                    var buffmsg_Int16 = (DataMessage<short>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
                     break;
                 case MessageType.PARAMETER_UINT16:
-                    msg = CastingHelper.CastToStruct<DataMessage<UInt16>>(buff_msg);
-                    var buffmsg_UInt16 = (DataMessage<UInt16>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<ushort>>();
+                    var buffmsg_UInt16 = (DataMessage<ushort>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
                     break;
                 case MessageType.PARAMETER_INT32:
-                    msg = CastingHelper.CastToStruct<DataMessage<Int32>>(buff_msg);
-                    var buffmsg_Int32 = (DataMessage<Int32>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<int>>();
+                    var buffmsg_Int32 = (DataMessage<int>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
                     break;
                 case MessageType.PARAMETER_UINT32:
-                    msg = CastingHelper.CastToStruct<DataMessage<UInt32>>(buff_msg);
-                    var buffmsg_UInt32 = (DataMessage<UInt32>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<uint>>();
+                    var buffmsg_UInt32 = (DataMessage<uint>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
                     break;
                 case MessageType.PARAMETER_INT64:
-                    msg = CastingHelper.CastToStruct<DataMessage<Int64>>(buff_msg);
-                    var buffmsg_Int64 = (DataMessage<Int64>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<long>>();
+                    var buffmsg_Int64 = (DataMessage<long>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
                     break;
                 case MessageType.PARAMETER_UINT64:
-                    msg = CastingHelper.CastToStruct<DataMessage<UInt64>>(buff_msg);
-                    var buffmsg_UInt64 = (DataMessage<UInt64>)msg;
-                    this.FLOAT_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
+                    msg = buff_msg.CastToStruct<DataMessage<ulong>>();
+                    var buffmsg_UInt64 = (DataMessage<ulong>)msg;
+                    FLOAT_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
                     break;
             }
 
@@ -162,7 +157,7 @@ namespace SAI_4
             {
                 port.Open();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
@@ -188,6 +183,18 @@ namespace SAI_4
             return true;
         }
 
+        public void Initialize()
+        {
+            if (port.IsOpen)
+            {
+                InitializeMessage msg = new InitializeMessage();
+                port.Write(msg.CastToArray(), 0, msg.MsgHead.MsgLength);
+            }
+            else
+            {
+
+            }
+        }
 
     }
 }

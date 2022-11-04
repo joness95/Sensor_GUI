@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Management;
+using Sensor_GUI.Controllers;
+using Sensor_GUI.Helper;
+using Sensor_GUI.Messages;
 
 namespace SAI_4
 {
@@ -18,10 +21,6 @@ namespace SAI_4
             });
         }
 
-        private void tabPage2_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void ButtonScan_Click(object sender, EventArgs e)
         {
@@ -95,15 +94,22 @@ namespace SAI_4
             
             Button button = (Button)sender;
             var selected = ListConnections.SelectedItems;
+            var ToolStripConnectionStatus = statusStrip1.Items["ToolStripConnectionStatus"];
             if (selected.Count > 0 && _controller.port.IsOpen == false && button.Text == "Connect")
             {
                 button.Text = "Disconnect";
                 ButtonScan.Enabled = false;
                 ListConnections.Enabled = false;
+                
+                ToolStripConnectionStatus.BackColor = Color.Orange;
+                ToolStripConnectionStatus.Text = "Connecting...";
+
                 _controller.SetConnectionString(_ports[ListConnections.SelectedItems[0].Text].COMPort);
                 try
                 {
                     _controller.Connect();
+                    ToolStripConnectionStatus.BackColor = Color.SpringGreen;
+                    ToolStripConnectionStatus.Text = "Connected";
                 }
                 catch (Exception exception)
                 {
@@ -112,6 +118,8 @@ namespace SAI_4
 
                     _controller.Disconnect();
                     button.Text = "Connect";
+                    ToolStripConnectionStatus.BackColor = Color.Red;
+                    ToolStripConnectionStatus.Text = "Error";
                     Debug.WriteLine(exception);
                 }
             }
@@ -119,7 +127,8 @@ namespace SAI_4
             {
                 ListConnections.Enabled = true;
                 ButtonScan.Enabled = true;
-
+                ToolStripConnectionStatus.BackColor = Color.Gray;
+                ToolStripConnectionStatus.Text = "Disconnected";
                 _controller.Disconnect();
                 button.Text = "Connect";
             }
@@ -128,6 +137,50 @@ namespace SAI_4
         private void button_test_Click(object sender, EventArgs e)
         {
             _controller.ReadParameter(ParameterNumber.CYCLETIME);
+        }
+
+        private void Debug_Connect_Click(object sender, EventArgs e)
+        {
+            Button button = (Button)sender;
+            var selected = ListConnections.SelectedItems;
+            var ToolStripConnectionStatus = statusStrip1.Items["ToolStripConnectionStatus"];
+            if (_controller.port.IsOpen == false && button.Text == "Connect")
+            {
+                button.Text = "Disconnect";
+                ButtonScan.Enabled = false;
+                ListConnections.Enabled = false;
+
+                ToolStripConnectionStatus.BackColor = Color.Orange;
+                ToolStripConnectionStatus.Text = "Connecting...";
+
+                _controller.SetConnectionString("COM1");
+                try
+                {
+                    _controller.Connect();
+                    ToolStripConnectionStatus.BackColor = Color.SpringGreen;
+                    ToolStripConnectionStatus.Text = "Connected";
+                }
+                catch (Exception exception)
+                {
+                    ListConnections.Enabled = true;
+                    ButtonScan.Enabled = true;
+
+                    _controller.Disconnect();
+                    button.Text = "Connect";
+                    ToolStripConnectionStatus.BackColor = Color.Red;
+                    ToolStripConnectionStatus.Text = "Error";
+                    Debug.WriteLine(exception);
+                }
+            }
+            else if (_controller.port.IsOpen && button.Text == "Disconnect")
+            {
+                ListConnections.Enabled = true;
+                ButtonScan.Enabled = true;
+                ToolStripConnectionStatus.BackColor = Color.Gray;
+                ToolStripConnectionStatus.Text = "Disconnected";
+                _controller.Disconnect();
+                button.Text = "Connect";
+            }
         }
     }
 }
