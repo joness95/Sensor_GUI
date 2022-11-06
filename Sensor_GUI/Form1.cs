@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Management;
+using System.Text;
 using Sensor_GUI.Controllers;
 using Sensor_GUI.Helper;
 using Sensor_GUI.Messages;
@@ -16,11 +17,19 @@ namespace SAI_4
             InitializeComponent();
             ListProperties.Columns[0].Width = this.ListProperties.Size.Width / 2 - 1;
             ListProperties.Columns[1].Width = this.ListProperties.Size.Width / 2 - 1;
-            _controller.ParamterRecieved += ((object sender, ParameterNumber ParameterNumber, byte[] Value) => {
+            _controller.ParamterRecieved += ((object sender, ParameterNumber ParameterNumber, byte[] Value) =>
+            {
                 Debug.WriteLine($"Paramternumber {ParameterNumber} - Value {BitConverter.ToString(Value)}");
             });
+
+            _controller.ParamterRecieved += RecievedCycleTime;
         }
 
+        private void RecievedCycleTime(object sender, ParameterNumber ParameterNumber, byte[] Value)
+        {
+            UInt32 value = BitConverter.ToUInt32(Value, 0);
+            textBox1.Invoke(()=> textBox1.Text = value.ToString());
+        }
 
         private void ButtonScan_Click(object sender, EventArgs e)
         {
@@ -91,7 +100,7 @@ namespace SAI_4
 
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
-            
+
             Button button = (Button)sender;
             var selected = ListConnections.SelectedItems;
             var ToolStripConnectionStatus = statusStrip1.Items["ToolStripConnectionStatus"];
@@ -100,7 +109,7 @@ namespace SAI_4
                 button.Text = "Disconnect";
                 ButtonScan.Enabled = false;
                 ListConnections.Enabled = false;
-                
+
                 ToolStripConnectionStatus.BackColor = Color.Orange;
                 ToolStripConnectionStatus.Text = "Connecting...";
 
@@ -136,7 +145,7 @@ namespace SAI_4
 
         private void button_test_Click(object sender, EventArgs e)
         {
-            _controller.ReadParameter(ParameterNumber.CYCLETIME);
+            
         }
 
         private void Debug_Connect_Click(object sender, EventArgs e)
@@ -181,6 +190,29 @@ namespace SAI_4
                 _controller.Disconnect();
                 button.Text = "Connect";
             }
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char ch = e.KeyChar;
+
+            if (!char.IsNumber(ch) && !char.IsLetter(ch) && ch != 8 && ch != 46)  //8 is Backspace key; 46 is Delete key. This statement accepts dot key. 
+                                                                                  //if (!char.IsLetterOrDigit(ch) && !char.IsLetter(ch) && ch != 8 && ch != 46)   //This statement accepts dot key. 
+            {
+                e.Handled = true;
+                MessageBox.Show("Only accept digital character or letter.");
+            }
+        }
+
+        private void ButtonApply_Click(object sender, EventArgs e)
+        {
+            if (_controller.port.IsOpen)
+                _controller.SetParameter(ParameterNumber.CYCLETIME, BitConverter.GetBytes( UInt32.Parse(textBox1.Text)));
+        }
+
+        private void ButtonInitialize_Click(object sender, EventArgs e)
+        {
+            _controller.Initialize();
         }
     }
 }

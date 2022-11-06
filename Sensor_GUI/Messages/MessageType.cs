@@ -1,6 +1,6 @@
 ﻿namespace Sensor_GUI.Messages
 {
-    internal enum MessageType : ushort
+    public  enum MessageType : ushort
     {
         INVALID = 0,
         GET_HEARTBEAT = 0x01,
@@ -10,6 +10,8 @@
         GET_PARAMETER,
         GET_PARAMETER_RESPONSE,
         INITIALIZE,
+        INITIALIZE_RESPONSE,
+
         PARAMETER_FLOAT = 0x100,
         PARAMETER_DOUBLE,
         PARAMETER_INT8 = 0x110,

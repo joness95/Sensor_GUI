@@ -1,4 +1,5 @@
-﻿using Sensor_GUI.Helper;
+﻿using ScottPlot.Palettes;
+using Sensor_GUI.Helper;
 using Sensor_GUI.Messages;
 using System.Collections;
 using System.Diagnostics;
@@ -7,7 +8,7 @@ using System.IO.Ports;
 
 namespace Sensor_GUI.Controllers
 {
-    internal class ArduinoController : IBaseSensorController
+    public class ArduinoController : IBaseSensorController
     {
         public SerialPort port = new SerialPort();
         public Dictionary<int, IEnumerable> data = new Dictionary<int, IEnumerable>();
@@ -23,13 +24,13 @@ namespace Sensor_GUI.Controllers
         public event DataAvailableDelegate<float> FLOAT_DataAvailable = delegate { };
         public event DataAvailableDelegate<double> DOUBLE_DataAvailable = delegate { };
 
-        public event ParameterResponse ParamterRecieved = delegate { };
-
-        public delegate void ParameterResponse(object sender, ParameterNumber ParameterNumber, byte[] Value);
+        public event ParameterResponseDelegate ParamterRecieved = delegate { };
+        public event InitializedDelegate OnInitialized = delegate { };
+        public delegate void ParameterResponseDelegate(object sender, ParameterNumber ParameterNumber, byte[] Value);
 
         public delegate void DataAvailableDelegate<T>(object sender, ushort ParameterNumber, T bytes);
 
-
+        public delegate void InitializedDelegate(object sender);
 
         public ArduinoController()
         {
@@ -49,7 +50,7 @@ namespace Sensor_GUI.Controllers
 
         public void ReadParameter(ParameterNumber number)
         {
-            GetParameterRequest request;
+            GetParameterRequest request = new();
             request.MessageHead.MsgType = MessageType.GET_PARAMETER;
             request.ParameterNumber = number;
             request.MessageHead.MsgLength = 6;
@@ -82,13 +83,15 @@ namespace Sensor_GUI.Controllers
                 case MessageType.SET_PARAMETER:
                     break;
                 case MessageType.SET_PARAMETER_RESPONSE:
-                    var set_param_response = SetParameterResponse.GetFromByteArray(buff_msg);
+                    var set_param_response = new SetParameterResponse();
+                    set_param_response.GetFromByteArray(buff_msg);
                     ParamterRecieved(this, set_param_response.ParameterNumber, set_param_response.Value);
                     break;
                 case MessageType.GET_PARAMETER:
                     break;
                 case MessageType.GET_PARAMETER_RESPONSE:
-                    var get_param_response = GetParameterResponse.GetFromByteArray(buff_msg);
+                    var get_param_response = new GetParameterResponse();
+                    get_param_response.GetFromByteArray(buff_msg);
                     ParamterRecieved(this, get_param_response.ParameterNumber, get_param_response.Value);
                     break;
                 case MessageType.PARAMETER_FLOAT:
@@ -141,10 +144,17 @@ namespace Sensor_GUI.Controllers
                     var buffmsg_UInt64 = (DataMessage<ulong>)msg;
                     FLOAT_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
                     break;
+                case MessageType.INITIALIZE:
+
+                    break;
+                case MessageType.INITIALIZE_RESPONSE:
+                    var init_response = new SetParameterResponse();
+                    init_response.GetFromByteArray(buff_msg);
+                    break;
             }
 
 
-            string hexString = BitConverter.ToString(buff_data);
+            string hexString = BitConverter.ToString(buff_msg);
             Debug.WriteLine(hexString);
         }
 
@@ -188,13 +198,19 @@ namespace Sensor_GUI.Controllers
             if (port.IsOpen)
             {
                 InitializeMessage msg = new InitializeMessage();
-                port.Write(msg.CastToArray(), 0, msg.MsgHead.MsgLength);
-            }
-            else
-            {
-
+                port.Write(msg.ToByteArray(), 0, msg.MsgHead.MsgLength);
             }
         }
 
+        public void SetParameter(ParameterNumber number, byte[] value)
+        {
+            SetParameterRequest request = new();
+            request.MessageHead.MsgType = MessageType.SET_PARAMETER;
+            request.ParameterNumber = number;
+            request.MessageHead.MsgLength = (UInt16)(value.Length +6);
+            request.Value = new byte[value.Length];
+            value.CopyTo(request.Value, 0);
+            port.Write(request.ToByteArray(), 0, request.MessageHead.MsgLength);
+        }
     }
 }

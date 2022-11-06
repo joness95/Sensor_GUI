@@ -1,23 +1,24 @@
 ﻿using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace Sensor_GUI.Messages
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    [Serializable]
-    internal struct GetParameterRequest
+
+    public class GetParameterRequest : ISerializable<GetParameterRequest>
     {
         public MessageHead MessageHead;
         public ParameterNumber ParameterNumber;
 
-        public static GetParameterRequest GetFromByteArray(byte[] data)
+
+        public override void GetFromByteArray(byte[] data)
         {
-            GetParameterRequest data_struct = new GetParameterRequest();
-            data_struct.MessageHead.MsgType = (MessageType)BitConverter.ToUInt16(data, 0);
-            data_struct.MessageHead.MsgLength = BitConverter.ToUInt16(data, 2);
-            data_struct.ParameterNumber = (ParameterNumber)BitConverter.ToUInt16(data, 4);
-            return data_struct;
+
+            this.MessageHead.MsgType = (MessageType)BitConverter.ToUInt16(data, 0);
+            this.MessageHead.MsgLength = BitConverter.ToUInt16(data, 2);
+            this.ParameterNumber = (ParameterNumber)BitConverter.ToUInt16(data, 4);
         }
-        public byte[] ToByteArray()
+
+        public override byte[] ToByteArray()
         {
             GetParameterRequest data_struct = this;
             byte[] bytes = new byte[data_struct.MessageHead.MsgLength];

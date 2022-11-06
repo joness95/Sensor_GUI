@@ -1,8 +1,8 @@
 ﻿namespace Sensor_GUI.Messages
 {
-    internal enum ParameterNumber : ushort
+    public enum ParameterNumber : ushort
     {
         INVALID = 0,
-        CYCLETIME
+        CYCLETIME =1,
     }
 }
