@@ -64,11 +64,13 @@ namespace Sensor_GUI.Messages
 
         public override byte[] ToByteArray()
         {
-            GetParameterRequest data_struct = this;
+            DataMessage<T> data_struct = this;
             byte[] bytes = new byte[data_struct.MessageHead.MsgLength];
             BitConverter.GetBytes((ushort)data_struct.MessageHead.MsgType).CopyTo(bytes, 0);
             BitConverter.GetBytes(data_struct.MessageHead.MsgLength).CopyTo(bytes, 2);
             BitConverter.GetBytes((ushort)data_struct.ParameterNumber).CopyTo(bytes, 4);
+            BitConverter.GetBytes(data_struct.Value).CopyTo(bytes, 6);
+
             return bytes;
 
         }
