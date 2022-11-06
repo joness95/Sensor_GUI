@@ -80,14 +80,10 @@ namespace Sensor_GUI.Controllers
                     break;
                 case MessageType.GET_HEARTBEAT_RESPONSE:
                     break;
-                case MessageType.SET_PARAMETER:
-                    break;
                 case MessageType.SET_PARAMETER_RESPONSE:
                     var set_param_response = new SetParameterResponse();
                     set_param_response.GetFromByteArray(buff_msg);
                     ParamterRecieved(this, set_param_response.ParameterNumber, set_param_response.Value);
-                    break;
-                case MessageType.GET_PARAMETER:
                     break;
                 case MessageType.GET_PARAMETER_RESPONSE:
                     var get_param_response = new GetParameterResponse();
@@ -144,12 +140,10 @@ namespace Sensor_GUI.Controllers
                     var buffmsg_UInt64 = (DataMessage<ulong>)msg;
                     FLOAT_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
                     break;
-                case MessageType.INITIALIZE:
-
-                    break;
                 case MessageType.INITIALIZE_RESPONSE:
-                    var init_response = new SetParameterResponse();
+                    var init_response = new InitializeResponseMessage();
                     init_response.GetFromByteArray(buff_msg);
+                    OnInitialized(this);
                     break;
             }
 

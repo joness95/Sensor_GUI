@@ -47,11 +47,11 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.ButtonApply = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.ButtonInitialize = new System.Windows.Forms.Button();
             this.PageExperiments = new System.Windows.Forms.TabPage();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ToolStripStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.ToolStripConnectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.ButtonInitialize = new System.Windows.Forms.Button();
             this.PageMeassuring.SuspendLayout();
             this.PageConnection.SuspendLayout();
             this.PanelUSBInfo.SuspendLayout();
@@ -271,6 +271,7 @@
             this.textBox1.PlaceholderText = "5000";
             this.textBox1.Size = new System.Drawing.Size(146, 23);
             this.textBox1.TabIndex = 7;
+            this.textBox1.Text = "5000";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
@@ -295,6 +296,16 @@
             this.label1.Size = new System.Drawing.Size(60, 29);
             this.label1.TabIndex = 8;
             this.label1.Text = "Cycletime";
+            // 
+            // ButtonInitialize
+            // 
+            this.ButtonInitialize.Location = new System.Drawing.Point(221, 32);
+            this.ButtonInitialize.Name = "ButtonInitialize";
+            this.ButtonInitialize.Size = new System.Drawing.Size(151, 23);
+            this.ButtonInitialize.TabIndex = 10;
+            this.ButtonInitialize.Text = "Initialize";
+            this.ButtonInitialize.UseVisualStyleBackColor = true;
+            this.ButtonInitialize.Click += new System.EventHandler(this.ButtonInitialize_Click);
             // 
             // PageExperiments
             // 
@@ -328,16 +339,6 @@
             this.ToolStripConnectionStatus.Name = "ToolStripConnectionStatus";
             this.ToolStripConnectionStatus.Size = new System.Drawing.Size(79, 17);
             this.ToolStripConnectionStatus.Text = "Disconnected";
-            // 
-            // ButtonInitialize
-            // 
-            this.ButtonInitialize.Location = new System.Drawing.Point(221, 32);
-            this.ButtonInitialize.Name = "ButtonInitialize";
-            this.ButtonInitialize.Size = new System.Drawing.Size(151, 23);
-            this.ButtonInitialize.TabIndex = 10;
-            this.ButtonInitialize.Text = "Initialize";
-            this.ButtonInitialize.UseVisualStyleBackColor = true;
-            this.ButtonInitialize.Click += new System.EventHandler(this.ButtonInitialize_Click);
             // 
             // MainForm
             // 

@@ -5,31 +5,72 @@ namespace Sensor_GUI.Messages
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     [Serializable]
-    internal struct DataMessage<T> : IDataMessage
+    public class DataMessage<T> : ISerializable<DataMessage<T>>
     {
         public MessageHead MessageHead;
         public ushort ParameterNumber;
         public T Value;
 
-
-        byte[] IDataMessage.Value
+        public override void GetFromByteArray(byte[] data)
         {
-            get
+
+            this.MessageHead.MsgType = (MessageType)BitConverter.ToUInt16(data, 0);
+            this.MessageHead.MsgLength = BitConverter.ToUInt16(data, 2);
+            this.ParameterNumber = BitConverter.ToUInt16(data, 4);
+
+            switch (this.MessageHead.MsgType)
             {
-                MemoryStream ms = new MemoryStream();
-                var binaryFormatter = new BinaryFormatter();
-#pragma warning disable CS8604 // Mögliches Nullverweisargument.
-#pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
-                binaryFormatter.Serialize(ms, Value);
-#pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
-#pragma warning restore CS8604 // Mögliches Nullverweisargument.
+                case MessageType.PARAMETER_FLOAT:
+                    this.Value = (T)(object)(BitConverter.ToSingle(data, 6));
 
-                return ms.ToArray();
+                    break;
+                case MessageType.PARAMETER_DOUBLE:
+                    this.Value = (T)(object)(BitConverter.ToDouble(data, 6));
+                    break;
+                case MessageType.PARAMETER_INT8:
+                    this.Value = (T)(object)(BitConverter.ToChar(data, 6));
 
+                    break;
+                case MessageType.PARAMETER_UINT8:
+                    this.Value = (T)(object)data[6];
+                    break;
+                case MessageType.PARAMETER_INT16:
+                    this.Value = (T)(object)(BitConverter.ToInt16(data, 6));
+
+                    break;
+                case MessageType.PARAMETER_UINT16:
+                    this.Value = (T)(object)(BitConverter.ToUInt16(data, 6));
+
+                    break;
+                case MessageType.PARAMETER_INT32:
+                    this.Value = (T)(object)(BitConverter.ToInt32(data, 6));
+
+                    break;
+                case MessageType.PARAMETER_UINT32:
+                    this.Value = (T)(object)(BitConverter.ToUInt32(data, 6));
+
+                    break;
+                case MessageType.PARAMETER_INT64:
+                    this.Value = (T)(object)(BitConverter.ToInt64(data, 6));
+
+                    break;
+                case MessageType.PARAMETER_UINT64:
+                    this.Value = (T)(object)(BitConverter.ToUInt64(data, 6));
+
+                    break;
             }
 
         }
 
-        MessageHead IDataMessage.Head => MessageHead;
+        public override byte[] ToByteArray()
+        {
+            GetParameterRequest data_struct = this;
+            byte[] bytes = new byte[data_struct.MessageHead.MsgLength];
+            BitConverter.GetBytes((ushort)data_struct.MessageHead.MsgType).CopyTo(bytes, 0);
+            BitConverter.GetBytes(data_struct.MessageHead.MsgLength).CopyTo(bytes, 2);
+            BitConverter.GetBytes((ushort)data_struct.ParameterNumber).CopyTo(bytes, 4);
+            return bytes;
+
+        }
     }
 }
