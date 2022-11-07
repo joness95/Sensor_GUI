@@ -145,6 +145,10 @@ namespace SAI_4
                     ToolStripConnectionStatus.Text = "Error";
                     Debug.WriteLine(exception);
                 }
+                if (_controller.port.IsOpen)
+                {
+                    ButtonStart.Enabled = true;
+                }
             }
             else if (_controller.port.IsOpen && button.Text == "Disconnect")
             {
@@ -154,6 +158,8 @@ namespace SAI_4
                 ToolStripConnectionStatus.Text = "Disconnected";
                 _controller.Disconnect();
                 button.Text = "Connect";
+                ButtonStart.Enabled = false;
+                recording = false;
             }
         }
 
@@ -194,6 +200,10 @@ namespace SAI_4
                     ToolStripConnectionStatus.Text = "Error";
                     Debug.WriteLine(exception);
                 }
+                if (_controller.port.IsOpen)
+                {
+                    ButtonStart.Enabled = true;
+                }
             }
             else if (_controller.port.IsOpen && button.Text == "Disconnect")
             {
@@ -203,6 +213,8 @@ namespace SAI_4
                 ToolStripConnectionStatus.Text = "Disconnected";
                 _controller.Disconnect();
                 button.Text = "Connect";
+                ButtonStart.Enabled = false;
+                recording=false;
             }
         }
 
