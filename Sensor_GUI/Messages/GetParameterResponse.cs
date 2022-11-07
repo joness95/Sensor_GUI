@@ -2,7 +2,7 @@
 
 namespace Sensor_GUI.Messages
 {
-    public class GetParameterResponse : ISerializable<GetParameterResponse>
+    public class GetParameterResponse : ISerializable
     {
         public MessageHead MessageHead;
         public ParameterNumber ParameterNumber;

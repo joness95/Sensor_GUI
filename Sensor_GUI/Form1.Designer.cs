@@ -97,10 +97,12 @@
             this.ButtonStart.TabIndex = 2;
             this.ButtonStart.Text = "Start";
             this.ButtonStart.UseVisualStyleBackColor = true;
+            this.ButtonStart.Click += new System.EventHandler(this.ButtonStart_Click);
             // 
             // ButtonStop
             // 
             this.ButtonStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonStop.Enabled = false;
             this.ButtonStop.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.ButtonStop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ButtonStop.Location = new System.Drawing.Point(663, 54);
@@ -109,6 +111,7 @@
             this.ButtonStop.TabIndex = 3;
             this.ButtonStop.Text = "Stop";
             this.ButtonStop.UseVisualStyleBackColor = true;
+            this.ButtonStop.Click += new System.EventHandler(this.ButtonStop_Click);
             // 
             // PageConnection
             // 

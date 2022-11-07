@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sensor_GUI.Messages
 {
-    public abstract class ISerializable<T>
+    public abstract class ISerializable
     {
         public abstract void GetFromByteArray(byte[] data);
 

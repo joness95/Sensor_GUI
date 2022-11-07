@@ -1,6 +1,7 @@
 ﻿using ScottPlot.Palettes;
 using Sensor_GUI.Helper;
 using Sensor_GUI.Messages;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -13,11 +14,11 @@ namespace Sensor_GUI.Controllers
         public SerialPort port = new SerialPort();
         public Dictionary<int, IEnumerable> data = new Dictionary<int, IEnumerable>();
 
-        public event DataAvailableDelegate<sbyte> UINT8_DataAvailable = delegate { };
+        public event DataAvailableDelegate<byte> UINT8_DataAvailable = delegate { };
         public event DataAvailableDelegate<ushort> UINT16_DataAvailable = delegate { };
         public event DataAvailableDelegate<uint> UINT32_DataAvailable = delegate { };
         public event DataAvailableDelegate<ulong> UINT64_DataAvailable = delegate { };
-        public event DataAvailableDelegate<byte> INT8_DataAvailable = delegate { };
+        public event DataAvailableDelegate<sbyte> INT8_DataAvailable = delegate { };
         public event DataAvailableDelegate<short> INT16_DataAvailable = delegate { };
         public event DataAvailableDelegate<int> INT32_DataAvailable = delegate { };
         public event DataAvailableDelegate<long> INT64_DataAvailable = delegate { };
@@ -28,7 +29,7 @@ namespace Sensor_GUI.Controllers
         public event InitializedDelegate OnInitialized = delegate { };
         public delegate void ParameterResponseDelegate(object sender, ParameterNumber ParameterNumber, byte[] Value);
 
-        public delegate void DataAvailableDelegate<T>(object sender, ushort ParameterNumber, T bytes);
+        public delegate void DataAvailableDelegate<T>(object sender, ushort MeassurementSet, T bytes);
 
         public delegate void InitializedDelegate(object sender);
 
@@ -70,7 +71,7 @@ namespace Sensor_GUI.Controllers
             _port.Read(buff_data, 0, head.MsgLength - 4);
             byte[] buff_msg = buff_head.Concat(buff_data).ToArray();
 
-            IDataMessage msg;
+            ISerializable msg;
 
             switch (head.MsgType)
             {
@@ -91,54 +92,64 @@ namespace Sensor_GUI.Controllers
                     ParamterRecieved(this, get_param_response.ParameterNumber, get_param_response.Value);
                     break;
                 case MessageType.PARAMETER_FLOAT:
-                    msg = buff_msg.CastToStruct<DataMessage<float>>();
+                    msg = new DataMessage<float>();
+                    msg.GetFromByteArray(buff_msg);
                     var buffmsg_float = (DataMessage<float>)msg;
                     FLOAT_DataAvailable(this, buffmsg_float.ParameterNumber, buffmsg_float.Value);
                     break;
                 case MessageType.PARAMETER_DOUBLE:
-                    msg = buff_msg.CastToStruct<DataMessage<double>>();
+                    msg = new DataMessage<double>();
+                    msg.GetFromByteArray(buff_msg);
                     var buffmsg_double = (DataMessage<double>)msg;
                     DOUBLE_DataAvailable(this, buffmsg_double.ParameterNumber, buffmsg_double.Value);
                     break;
                 case MessageType.PARAMETER_INT8:
-                    msg = buff_msg.CastToStruct<DataMessage<sbyte>>();
-                    var buffmsg_SByte = (DataMessage<sbyte>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_SByte.ParameterNumber, buffmsg_SByte.Value);
+                    msg = new DataMessage<sbyte>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_sbyte = (DataMessage<sbyte>)msg;
+                    INT8_DataAvailable(this, buffmsg_sbyte.ParameterNumber, buffmsg_sbyte.Value);
                     break;
                 case MessageType.PARAMETER_UINT8:
-                    msg = buff_msg.CastToStruct<DataMessage<byte>>();
-                    var buffmsg_Byte = (DataMessage<byte>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_Byte.ParameterNumber, buffmsg_Byte.Value);
+                    msg = new DataMessage<byte>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_byte = (DataMessage<byte>)msg;
+                    UINT8_DataAvailable(this, buffmsg_byte.ParameterNumber, buffmsg_byte.Value);
                     break;
                 case MessageType.PARAMETER_INT16:
-                    msg = buff_msg.CastToStruct<DataMessage<short>>();
-                    var buffmsg_Int16 = (DataMessage<short>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
+                    msg = new DataMessage<Int16>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_Int16 = (DataMessage<Int16>)msg;
+                    INT16_DataAvailable(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
                     break;
                 case MessageType.PARAMETER_UINT16:
-                    msg = buff_msg.CastToStruct<DataMessage<ushort>>();
-                    var buffmsg_UInt16 = (DataMessage<ushort>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
+                    msg = new DataMessage<UInt16>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_UInt16 = (DataMessage<UInt16>)msg;
+                    UINT16_DataAvailable(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
                     break;
                 case MessageType.PARAMETER_INT32:
-                    msg = buff_msg.CastToStruct<DataMessage<int>>();
-                    var buffmsg_Int32 = (DataMessage<int>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
+                    msg = new DataMessage<Int32>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_Int32 = (DataMessage<Int32>)msg;
+                    INT32_DataAvailable(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
                     break;
                 case MessageType.PARAMETER_UINT32:
-                    msg = buff_msg.CastToStruct<DataMessage<uint>>();
-                    var buffmsg_UInt32 = (DataMessage<uint>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
+                    msg = new DataMessage<UInt32>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_UInt32 = (DataMessage<UInt32>)msg;
+                    UINT32_DataAvailable(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
                     break;
                 case MessageType.PARAMETER_INT64:
-                    msg = buff_msg.CastToStruct<DataMessage<long>>();
-                    var buffmsg_Int64 = (DataMessage<long>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
+                    msg = new DataMessage<Int64>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_Int64 = (DataMessage<Int64>)msg;
+                    INT64_DataAvailable(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
                     break;
                 case MessageType.PARAMETER_UINT64:
-                    msg = buff_msg.CastToStruct<DataMessage<ulong>>();
-                    var buffmsg_UInt64 = (DataMessage<ulong>)msg;
-                    FLOAT_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
+                    msg = new DataMessage<UInt64>();
+                    msg.GetFromByteArray(buff_msg);
+                    var buffmsg_UInt64 = (DataMessage<UInt64>)msg;
+                    UINT64_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
                     break;
                 case MessageType.INITIALIZE_RESPONSE:
                     var init_response = new InitializeResponseMessage();

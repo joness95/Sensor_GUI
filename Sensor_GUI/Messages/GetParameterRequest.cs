@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Sensor_GUI.Messages
 {
 
-    public class GetParameterRequest : ISerializable<GetParameterRequest>
+    public class GetParameterRequest : ISerializable
     {
         public MessageHead MessageHead;
         public ParameterNumber ParameterNumber;

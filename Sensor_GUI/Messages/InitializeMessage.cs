@@ -3,7 +3,7 @@
 namespace Sensor_GUI.Messages
 {
     
-    public class InitializeMessage : ISerializable<InitializeMessage>
+    public class InitializeMessage : ISerializable
     {
         public MessageHead MsgHead;
         public InitializeMessage()
@@ -29,7 +29,7 @@ namespace Sensor_GUI.Messages
         }
     }
 
-    public class InitializeResponseMessage : ISerializable<InitializeResponseMessage>
+    public class InitializeResponseMessage : ISerializable
     {
         public MessageHead MsgHead;
         public InitializeResponseMessage()

@@ -1,7 +1,12 @@
+using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.IO.Ports;
 using System.Management;
+using System.Numerics;
 using System.Text;
+using ScottPlot;
+using ScottPlot.Plottable;
 using Sensor_GUI.Controllers;
 using Sensor_GUI.Helper;
 using Sensor_GUI.Messages;
@@ -12,6 +17,11 @@ namespace SAI_4
     {
         Dictionary<string, SerialPortInfo> _ports = new Dictionary<string, SerialPortInfo>();
         ArduinoController _controller = new ArduinoController();
+        Dictionary<int,(IPlottable,List<long>,IEnumerable)> Plots = new Dictionary<int, (IPlottable, List<long>, IEnumerable)>();
+        private bool recording;
+
+        public long StartTime { get; private set; }
+
         public MainForm()
         {
             InitializeComponent();
@@ -22,7 +32,11 @@ namespace SAI_4
                 Debug.WriteLine($"Paramternumber {ParameterNumber} - Value {BitConverter.ToString(Value)}");
             });
 
+            _controller.INT16_DataAvailable += ((object sender, ushort Meassurement, Int16 bytes) => { Debug.WriteLine($"Data recieved {Meassurement} - Value {bytes}"); });
+
             _controller.ParamterRecieved += RecievedCycleTime;
+            
+            var Legend= Plot1.Plot.Legend(Enabled = true);
         }
 
         private void RecievedCycleTime(object sender, ParameterNumber ParameterNumber, byte[] Value)
@@ -213,6 +227,80 @@ namespace SAI_4
         private void ButtonInitialize_Click(object sender, EventArgs e)
         {
             _controller.Initialize();
+        }
+
+        
+        private void ButtonStart_Click(object sender, EventArgs e)
+        {
+            var button = (Button)sender;
+            button.Enabled = false; 
+            ButtonStop.Enabled = true;
+            Plot1.Plot.Clear();
+            Plots.Clear();
+            recording = true;
+            StartTime = DateTime.UtcNow.Ticks;
+            _controller.DOUBLE_DataAvailable += _controller_DataAvailable<double>; 
+            _controller.FLOAT_DataAvailable += _controller_DataAvailable<float>;
+            _controller.INT8_DataAvailable += _controller_DataAvailable<sbyte>;
+            _controller.INT16_DataAvailable += _controller_DataAvailable<Int16>;
+            _controller.INT32_DataAvailable += _controller_DataAvailable<Int32>;
+            _controller.INT64_DataAvailable +=  _controller_DataAvailable<Int64>;
+            _controller.UINT8_DataAvailable += _controller_DataAvailable<byte>;
+            _controller.UINT16_DataAvailable += _controller_DataAvailable<UInt16>;
+            _controller.UINT32_DataAvailable += _controller_DataAvailable<UInt32>;
+            _controller.UINT64_DataAvailable += _controller_DataAvailable<UInt64>;
+
+        }
+
+        
+
+        private void _controller_DataAvailable<T>(object sender, ushort MeassurementSet, T bytes) where T:struct,IComparable
+        {
+            if (!recording)
+                return;
+            if (!Plots.ContainsKey(MeassurementSet))
+            {
+                var plt = new SignalPlotXYGeneric<long, T>();
+                var tickList = new List<long>();
+                var valuesList = new List<T>();
+                plt.Label = $"Signal {MeassurementSet}";
+                plt.Color = Plot1.Plot.GetNextColor();
+                Plot1.Plot.Add(plt);
+                Plots.Add(MeassurementSet, (plt, tickList, valuesList));
+            }
+
+            (var p, var ticks, var v) = Plots[MeassurementSet];
+            
+            var plot = (SignalPlotXYGeneric<long, T>)p ;
+            var values = v as List<T>;
+
+            ticks.Add((DateTime.UtcNow.Ticks - StartTime)/10000000);
+            values.Add(bytes);
+
+            plot.Xs = ticks.ToArray();
+            plot.Ys = values.ToArray();
+            plot.MaxRenderIndex = ticks.Count-1;
+
+            Plot1.Invoke(() => { Plot1.Refresh(); }); 
+        }
+
+        
+
+        private void ButtonStop_Click(object sender, EventArgs e)
+        {
+            ButtonStart.Enabled = true;
+            ButtonStop.Enabled = false;
+            recording = false;
+            _controller.DOUBLE_DataAvailable -= _controller_DataAvailable<double>;
+            _controller.FLOAT_DataAvailable -=  _controller_DataAvailable<float>;
+            _controller.INT8_DataAvailable -=   _controller_DataAvailable<sbyte>;
+            _controller.INT16_DataAvailable -=  _controller_DataAvailable<Int16>;
+            _controller.INT32_DataAvailable -=  _controller_DataAvailable<Int32>;
+            _controller.INT64_DataAvailable -=   _controller_DataAvailable<Int64>;
+            _controller.UINT8_DataAvailable -=  _controller_DataAvailable<byte>;
+            _controller.UINT16_DataAvailable -= _controller_DataAvailable<UInt16>;
+            _controller.UINT32_DataAvailable -= _controller_DataAvailable<UInt32>;
+            _controller.UINT64_DataAvailable -= _controller_DataAvailable<UInt64>;
         }
     }
 }

@@ -3,13 +3,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Sensor_GUI.Messages
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    [Serializable]
-    public class DataMessage<T> : ISerializable<DataMessage<T>>
+
+    public class DataMessage<T> : ISerializable
     {
         public MessageHead MessageHead;
         public ushort ParameterNumber;
-        public T Value;
+        public T Value ;
 
         public override void GetFromByteArray(byte[] data)
         {
@@ -69,7 +68,40 @@ namespace Sensor_GUI.Messages
             BitConverter.GetBytes((ushort)data_struct.MessageHead.MsgType).CopyTo(bytes, 0);
             BitConverter.GetBytes(data_struct.MessageHead.MsgLength).CopyTo(bytes, 2);
             BitConverter.GetBytes((ushort)data_struct.ParameterNumber).CopyTo(bytes, 4);
-            BitConverter.GetBytes(data_struct.Value).CopyTo(bytes, 6);
+
+            switch (data_struct.MessageHead.MsgType)
+            {
+                case MessageType.PARAMETER_FLOAT:
+                    BitConverter.GetBytes((float)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_DOUBLE:
+                    BitConverter.GetBytes((double)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_INT8:
+                    BitConverter.GetBytes((sbyte)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_UINT8:
+                    BitConverter.GetBytes((byte)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_INT16:
+                    BitConverter.GetBytes((Int16)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_UINT16:
+                    BitConverter.GetBytes((UInt16)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_INT32:
+                    BitConverter.GetBytes((Int32)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_UINT32:
+                    BitConverter.GetBytes((UInt32)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_INT64:
+                    BitConverter.GetBytes((Int64)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+                case MessageType.PARAMETER_UINT64:
+                    BitConverter.GetBytes((UInt64)(object)data_struct.Value).CopyTo(bytes, 6);
+                    break;
+            }
 
             return bytes;
 
