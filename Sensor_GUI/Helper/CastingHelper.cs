@@ -2,6 +2,13 @@
 
 namespace Sensor_GUI.Helper
 {
+    public static class TernaryExtension
+    {
+        public static T Then<T>(this bool value, T result)
+        {
+            return value ? result : default(T);
+        }
+    }
     public static class CastingHelper
     {
         public static T CastToStruct<T>(this byte[] data) where T : struct

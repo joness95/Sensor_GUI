@@ -17,7 +17,7 @@ namespace SAI_4
     {
         Dictionary<string, SerialPortInfo> _ports = new Dictionary<string, SerialPortInfo>();
         ArduinoController _controller = new ArduinoController();
-        Dictionary<int,(IPlottable,List<long>,IEnumerable)> Plots = new Dictionary<int, (IPlottable, List<long>, IEnumerable)>();
+        Dictionary<int, (IPlottable, List<long>, IEnumerable)> Plots = new Dictionary<int, (IPlottable, List<long>, IEnumerable)>();
         private bool recording;
 
         public long StartTime { get; private set; }
@@ -35,14 +35,16 @@ namespace SAI_4
             _controller.INT16_DataAvailable += ((object sender, ushort Meassurement, Int16 bytes) => { Debug.WriteLine($"Data recieved {Meassurement} - Value {bytes}"); });
 
             _controller.ParamterRecieved += RecievedCycleTime;
-            
-            var Legend= Plot1.Plot.Legend(Enabled = true);
+
+            var Legend = Plot1.Plot.Legend(Enabled = true);
+            Plot1.Plot.Style(Style.Blue1);
+
         }
 
         private void RecievedCycleTime(object sender, ParameterNumber ParameterNumber, byte[] Value)
         {
-            UInt32 value = BitConverter.ToUInt32(Value, 0);
-            textBox1.Invoke(()=> textBox1.Text = value.ToString());
+            UInt32 value = BitConverter.ToUInt16(Value, 0);
+            textBox1.Invoke(() => textBox1.Text = value.ToString());
         }
 
         private void ButtonScan_Click(object sender, EventArgs e)
@@ -73,7 +75,8 @@ namespace SAI_4
                     {
                         var portInfo = buff[info];
                         portInfo.COMPort = compName;
-                        _ports.Add(info, portInfo);
+                        if (!_ports.ContainsKey(info))
+                            _ports.Add(info, portInfo);
                     }
                 }
             }
@@ -165,7 +168,7 @@ namespace SAI_4
 
         private void button_test_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void Debug_Connect_Click(object sender, EventArgs e)
@@ -214,7 +217,7 @@ namespace SAI_4
                 _controller.Disconnect();
                 button.Text = "Connect";
                 ButtonStart.Enabled = false;
-                recording=false;
+                recording = false;
             }
         }
 
@@ -233,7 +236,7 @@ namespace SAI_4
         private void ButtonApply_Click(object sender, EventArgs e)
         {
             if (_controller.port.IsOpen)
-                _controller.SetParameter(ParameterNumber.CYCLETIME, BitConverter.GetBytes( UInt32.Parse(textBox1.Text)));
+                _controller.SetParameter(ParameterNumber.CYCLETIME, BitConverter.GetBytes(UInt32.Parse(textBox1.Text)));
         }
 
         private void ButtonInitialize_Click(object sender, EventArgs e)
@@ -241,22 +244,22 @@ namespace SAI_4
             _controller.Initialize();
         }
 
-        
+
         private void ButtonStart_Click(object sender, EventArgs e)
         {
             var button = (Button)sender;
-            button.Enabled = false; 
+            button.Enabled = false;
             ButtonStop.Enabled = true;
             Plot1.Plot.Clear();
             Plots.Clear();
             recording = true;
             StartTime = DateTime.UtcNow.Ticks;
-            _controller.DOUBLE_DataAvailable += _controller_DataAvailable<double>; 
+            _controller.DOUBLE_DataAvailable += _controller_DataAvailable<double>;
             _controller.FLOAT_DataAvailable += _controller_DataAvailable<float>;
             _controller.INT8_DataAvailable += _controller_DataAvailable<sbyte>;
             _controller.INT16_DataAvailable += _controller_DataAvailable<Int16>;
             _controller.INT32_DataAvailable += _controller_DataAvailable<Int32>;
-            _controller.INT64_DataAvailable +=  _controller_DataAvailable<Int64>;
+            _controller.INT64_DataAvailable += _controller_DataAvailable<Int64>;
             _controller.UINT8_DataAvailable += _controller_DataAvailable<byte>;
             _controller.UINT16_DataAvailable += _controller_DataAvailable<UInt16>;
             _controller.UINT32_DataAvailable += _controller_DataAvailable<UInt32>;
@@ -264,9 +267,9 @@ namespace SAI_4
 
         }
 
-        
 
-        private void _controller_DataAvailable<T>(object sender, ushort MeassurementSet, T bytes) where T:struct,IComparable
+
+        private void _controller_DataAvailable<T>(object sender, ushort MeassurementSet, T bytes) where T : struct, IComparable
         {
             if (!recording)
                 return;
@@ -277,26 +280,71 @@ namespace SAI_4
                 var valuesList = new List<T>();
                 plt.Label = $"Signal {MeassurementSet}";
                 plt.Color = Plot1.Plot.GetNextColor();
-                Plot1.Plot.Add(plt);
                 Plots.Add(MeassurementSet, (plt, tickList, valuesList));
+                tickList.Add((DateTime.UtcNow.Ticks - StartTime) / 10000);
+                valuesList.Add(bytes);
+                Plot1.Plot.Add(plt);
+                plt.Xs = tickList.ToArray();
+                plt.Ys = valuesList.ToArray();
+                plt.MaxRenderIndex = tickList.Count - 1;
+                Plot1.Invoke(()=> Plot1.Refresh());
+                return;
             }
 
             (var p, var ticks, var v) = Plots[MeassurementSet];
-            
-            var plot = (SignalPlotXYGeneric<long, T>)p ;
+
+            var plot = (SignalPlotXYGeneric<long, T>)p;
             var values = v as List<T>;
 
-            ticks.Add((DateTime.UtcNow.Ticks - StartTime)/10000000);
+            ticks.Add((DateTime.UtcNow.Ticks - StartTime) / 10000);
             values.Add(bytes);
 
-            plot.Xs = ticks.ToArray();
-            plot.Ys = values.ToArray();
-            plot.MaxRenderIndex = ticks.Count-1;
 
-            Plot1.Invoke(() => { Plot1.Refresh(); }); 
+
+            Plot1.Invoke(() =>
+            {
+                if (checkBoxAutoZoom.Checked)
+                {
+                    plot.MinRenderIndex = plot.MaxRenderIndex - 20000 > 0 ? plot.MaxRenderIndex - 20000 : 0;
+                    if (ticks.Count>1)
+                        Plot1.Plot.AxisAuto();
+                }
+                else
+                {
+                    plot.MinRenderIndex = 0;
+                }
+                if (_controller.port.IsOpen && _controller.port.BytesToRead > 100 || !stable)
+                {
+                    stable = false;
+                    if (ticks.Count % count == 0)
+                    {
+                        plot.Xs = ticks.ToArray();
+                        plot.Ys = values.ToArray();
+                        plot.MaxRenderIndex = ticks.Count - 1;
+                        Plot1.Refresh(false, true);
+                    }
+                    count++;
+
+                }
+                else
+                {
+                    
+                    plot.Xs = ticks.ToArray();
+                    plot.Ys = values.ToArray();
+                    plot.MaxRenderIndex = ticks.Count - 1;
+                    Plot1.Refresh(false, true);
+                }
+                if (_controller.port.IsOpen && _controller.port.BytesToRead < 50)
+                {
+                    count = count > 1 ? count - 1 : 1;
+                    stable = true;
+                }
+            });
+            statusStrip1.Invoke(()=>ToolStripStatus.Text = $"Bytes to read: {(_controller.port.IsOpen?_controller.port.BytesToRead:0),10} Number of points; {(Plots.Count > 0).Then(Plots[Plots.Keys.First()].Item2.Count),10} Renderadjustment: {count,10}");
         }
 
-        
+        private int count = 1;
+        private bool stable = false;
 
         private void ButtonStop_Click(object sender, EventArgs e)
         {
@@ -304,15 +352,17 @@ namespace SAI_4
             ButtonStop.Enabled = false;
             recording = false;
             _controller.DOUBLE_DataAvailable -= _controller_DataAvailable<double>;
-            _controller.FLOAT_DataAvailable -=  _controller_DataAvailable<float>;
-            _controller.INT8_DataAvailable -=   _controller_DataAvailable<sbyte>;
-            _controller.INT16_DataAvailable -=  _controller_DataAvailable<Int16>;
-            _controller.INT32_DataAvailable -=  _controller_DataAvailable<Int32>;
-            _controller.INT64_DataAvailable -=   _controller_DataAvailable<Int64>;
-            _controller.UINT8_DataAvailable -=  _controller_DataAvailable<byte>;
+            _controller.FLOAT_DataAvailable -= _controller_DataAvailable<float>;
+            _controller.INT8_DataAvailable -= _controller_DataAvailable<sbyte>;
+            _controller.INT16_DataAvailable -= _controller_DataAvailable<Int16>;
+            _controller.INT32_DataAvailable -= _controller_DataAvailable<Int32>;
+            _controller.INT64_DataAvailable -= _controller_DataAvailable<Int64>;
+            _controller.UINT8_DataAvailable -= _controller_DataAvailable<byte>;
             _controller.UINT16_DataAvailable -= _controller_DataAvailable<UInt16>;
             _controller.UINT32_DataAvailable -= _controller_DataAvailable<UInt32>;
             _controller.UINT64_DataAvailable -= _controller_DataAvailable<UInt64>;
         }
+
+
     }
 }

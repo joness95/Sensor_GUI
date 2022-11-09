@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.PageMeassuring = new System.Windows.Forms.TabPage();
+            this.checkBoxAutoZoom = new System.Windows.Forms.CheckBox();
             this.Plot1 = new ScottPlot.FormsPlot();
             this.ButtonStart = new System.Windows.Forms.Button();
             this.ButtonStop = new System.Windows.Forms.Button();
@@ -64,6 +65,7 @@
             // PageMeassuring
             // 
             this.PageMeassuring.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.PageMeassuring.Controls.Add(this.checkBoxAutoZoom);
             this.PageMeassuring.Controls.Add(this.Plot1);
             this.PageMeassuring.Controls.Add(this.ButtonStart);
             this.PageMeassuring.Controls.Add(this.ButtonStop);
@@ -73,6 +75,17 @@
             this.PageMeassuring.Size = new System.Drawing.Size(776, 408);
             this.PageMeassuring.TabIndex = 1;
             this.PageMeassuring.Text = "Meassuring";
+            // 
+            // checkBoxAutoZoom
+            // 
+            this.checkBoxAutoZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBoxAutoZoom.Location = new System.Drawing.Point(663, 102);
+            this.checkBoxAutoZoom.Margin = new System.Windows.Forms.Padding(0);
+            this.checkBoxAutoZoom.Name = "checkBoxAutoZoom";
+            this.checkBoxAutoZoom.Size = new System.Drawing.Size(108, 19);
+            this.checkBoxAutoZoom.TabIndex = 5;
+            this.checkBoxAutoZoom.Text = "AutoZoom";
+            this.checkBoxAutoZoom.UseVisualStyleBackColor = true;
             // 
             // Plot1
             // 
@@ -395,5 +408,6 @@
         private Button ButtonApply;
         private Label label1;
         private Button ButtonInitialize;
+        private CheckBox checkBoxAutoZoom;
     }
 }
