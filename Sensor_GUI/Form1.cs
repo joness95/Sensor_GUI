@@ -305,7 +305,7 @@ namespace SAI_4
             {
                 if (checkBoxAutoZoom.Checked)
                 {
-                    plot.MinRenderIndex = plot.MaxRenderIndex - 20000 > 0 ? plot.MaxRenderIndex - 20000 : 0;
+                    plot.MinRenderIndex = plot.MaxRenderIndex - 5000 > 0 ? plot.MaxRenderIndex - 5000 : 0;
                     if (ticks.Count>1)
                         Plot1.Plot.AxisAuto();
                 }

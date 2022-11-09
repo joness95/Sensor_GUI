@@ -107,77 +107,77 @@ namespace Sensor_GUI.Controllers
                     case MessageType.SET_PARAMETER_RESPONSE:
                         var set_param_response = new SetParameterResponse();
                         set_param_response.GetFromByteArray(buff_msg);
-                        ParamterRecieved(this, set_param_response.ParameterNumber, set_param_response.Value);
+                        ParamterRecieved.Invoke(this, set_param_response.ParameterNumber, set_param_response.Value);
                         break;
                     case MessageType.GET_PARAMETER_RESPONSE:
                         var get_param_response = new GetParameterResponse();
                         get_param_response.GetFromByteArray(buff_msg);
-                        ParamterRecieved(this, get_param_response.ParameterNumber, get_param_response.Value);
+                        ParamterRecieved.Invoke(this, get_param_response.ParameterNumber, get_param_response.Value);
                         break;
                     case MessageType.PARAMETER_FLOAT:
                         msg = new DataMessage<float>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_float = (DataMessage<float>)msg;
-                        FLOAT_DataAvailable(this, buffmsg_float.ParameterNumber, buffmsg_float.Value);
+                        FLOAT_DataAvailable.Invoke(this, buffmsg_float.ParameterNumber, buffmsg_float.Value);
                         break;
                     case MessageType.PARAMETER_DOUBLE:
                         msg = new DataMessage<double>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_double = (DataMessage<double>)msg;
-                        DOUBLE_DataAvailable(this, buffmsg_double.ParameterNumber, buffmsg_double.Value);
+                        DOUBLE_DataAvailable.Invoke(this, buffmsg_double.ParameterNumber, buffmsg_double.Value);
                         break;
                     case MessageType.PARAMETER_INT8:
                         msg = new DataMessage<sbyte>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_sbyte = (DataMessage<sbyte>)msg;
-                        INT8_DataAvailable(this, buffmsg_sbyte.ParameterNumber, buffmsg_sbyte.Value);
+                        INT8_DataAvailable.Invoke(this, buffmsg_sbyte.ParameterNumber, buffmsg_sbyte.Value);
                         break;
                     case MessageType.PARAMETER_UINT8:
                         msg = new DataMessage<byte>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_byte = (DataMessage<byte>)msg;
-                        UINT8_DataAvailable(this, buffmsg_byte.ParameterNumber, buffmsg_byte.Value);
+                        UINT8_DataAvailable.Invoke(this, buffmsg_byte.ParameterNumber, buffmsg_byte.Value);
                         break;
                     case MessageType.PARAMETER_INT16:
                         msg = new DataMessage<Int16>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_Int16 = (DataMessage<Int16>)msg;
-                        INT16_DataAvailable(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
+                        INT16_DataAvailable.Invoke(this, buffmsg_Int16.ParameterNumber, buffmsg_Int16.Value);
                         break;
                     case MessageType.PARAMETER_UINT16:
                         msg = new DataMessage<UInt16>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_UInt16 = (DataMessage<UInt16>)msg;
-                        UINT16_DataAvailable(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
+                        UINT16_DataAvailable.Invoke(this, buffmsg_UInt16.ParameterNumber, buffmsg_UInt16.Value);
                         break;
                     case MessageType.PARAMETER_INT32:
                         msg = new DataMessage<Int32>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_Int32 = (DataMessage<Int32>)msg;
-                        INT32_DataAvailable(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
+                        INT32_DataAvailable.Invoke(this, buffmsg_Int32.ParameterNumber, buffmsg_Int32.Value);
                         break;
                     case MessageType.PARAMETER_UINT32:
                         msg = new DataMessage<UInt32>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_UInt32 = (DataMessage<UInt32>)msg;
-                        UINT32_DataAvailable(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
+                        UINT32_DataAvailable.Invoke(this, buffmsg_UInt32.ParameterNumber, buffmsg_UInt32.Value);
                         break;
                     case MessageType.PARAMETER_INT64:
                         msg = new DataMessage<Int64>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_Int64 = (DataMessage<Int64>)msg;
-                        INT64_DataAvailable(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
+                        INT64_DataAvailable.Invoke(this, buffmsg_Int64.ParameterNumber, buffmsg_Int64.Value);
                         break;
                     case MessageType.PARAMETER_UINT64:
                         msg = new DataMessage<UInt64>();
                         msg.GetFromByteArray(buff_msg);
                         var buffmsg_UInt64 = (DataMessage<UInt64>)msg;
-                        UINT64_DataAvailable(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
+                        UINT64_DataAvailable.Invoke(this, buffmsg_UInt64.ParameterNumber, buffmsg_UInt64.Value);
                         break;
                     case MessageType.INITIALIZE_RESPONSE:
                         var init_response = new InitializeResponseMessage();
                         init_response.GetFromByteArray(buff_msg);
-                        OnInitialized(this);
+                        OnInitialized.Invoke(this);
                         break;
                 }
 
